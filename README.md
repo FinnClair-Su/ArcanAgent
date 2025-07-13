@@ -4,9 +4,9 @@
 >
 > *一种通过 Markdown 和双向链接彻底改变大型语言模型（LLM）智能体知识管理的革命性方法*
 
-**⚠️ Project Status**: This project is currently under active development. We are building a proof-of-concept to demonstrate the transformative power of bidirectional linking for LLM Agent systems.
+**⚠️ Project Status**: This project is currently under active development. We are building a proof-of-concept to demonstrate the transformative power of bidirectional linking for **personal knowledge management** through LLM Agent systems. This is designed as a single-user system, optimizing for individual learning and memory enhancement.
 
-**⚠️ 项目状态**：本项目正处于积极开发阶段。我们正在构建一个概念验证（Proof-of-Concept），以展示双向链接为 LLM 智能体系统带来的变革性力量。
+**⚠️ 项目状态**：本项目正处于积极开发阶段。我们正在构建一个概念验证（Proof-of-Concept），通过 LLM 智能体系统展示双向链接在**个人知识管理**方面的变革性力量。这是一个专为单用户设计的系统，针对个人学习和记忆增强进行优化。
 
 ## 🎯 核心论点 (Core Thesis)
 
@@ -152,6 +152,10 @@ Every agent communicates through Model Context Protocol (MCP), enabling:
 ## 🌐 上下文构建算法 (The Context Construction Algorithm)
 
 ### 我们的核心创新：智能上下文构建 (Our Core Innovation: Intelligent Context Building)
+
+*Building on the insights from QA.md, our context construction leverages LLM's natural language understanding instead of complex database queries. This approach trusts the model's "intuition" over rigid rule-based systems.*
+
+*基于 QA.md 的洞察，我们的上下文构建利用 LLM 的自然语言理解能力，而非复杂的数据库查询。这种方法信任模型的"直觉"而非僵化的基于规则的系统。*
 
 When a user asks a question, our system performs the following steps:
 当用户提问时，我们的系统会执行以下步骤：
