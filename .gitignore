@@ -97,4 +97,4 @@ neo4j/
 
 # Vector databases
 *.faiss
-*.index
+*.indexref_project/
