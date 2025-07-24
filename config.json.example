@@ -1,0 +1,197 @@
+{
+  "system": {
+    "version": "0.1.0",
+    "debug": false,
+    "log_level": "INFO",
+    "knowledge_base_path": "./knowledge_base",
+    "enable_structured_logging": true
+  },
+  
+  "api": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "enable_docs": true,
+    "enable_cors": true,
+    "cors_origins": [
+      "http://localhost:3000",
+      "http://127.0.0.1:3000"
+    ],
+    "request_timeout": 30
+  },
+  
+  "llm": {
+    "default_provider": "openai",
+    "openai": {
+      "api_key": "sk-your-openai-api-key-here",
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4-turbo-preview",
+      "temperature": 0.7,
+      "max_tokens": 2000,
+      "timeout": 30
+    },
+    "anthropic": {
+      "api_key": "sk-ant-your-anthropic-api-key-here",
+      "model": "claude-3-sonnet-20240229",
+      "temperature": 0.7,
+      "max_tokens": 2000,
+      "timeout": 30
+    }
+  },
+  
+  "learning": {
+    "max_sessions": 10,
+    "session_timeout_minutes": 60,
+    "enable_session_persistence": true,
+    "zpd_analysis_depth": 3,
+    "cognitive_load_threshold": 0.8,
+    "enable_adaptive_difficulty": true
+  },
+  
+  "agents": {
+    "max_tool_call_loops": 5,
+    "tool_call_timeout": 30,
+    "enable_agent_logging": true,
+    "arcana_agents": {
+      "the_high_priestess": {
+        "enabled": true,
+        "description": "Knowledge state assessment and cognitive analysis",
+        "max_analysis_depth": 5,
+        "confidence_threshold": 0.7
+      },
+      "the_hermit": {
+        "enabled": true,
+        "description": "Learning path planning and ZPD identification",
+        "path_optimization": "shortest_cognitive_distance",
+        "max_path_length": 10
+      },
+      "the_magician": {
+        "enabled": true,
+        "description": "Personalized content generation and bidirectional linking",
+        "content_style": "adaptive",
+        "link_creation_threshold": 0.6
+      },
+      "justice": {
+        "enabled": true,
+        "description": "Understanding assessment and learning effectiveness evaluation",
+        "assessment_methods": ["explanation", "application", "connection"],
+        "pass_threshold": 0.75
+      },
+      "the_empress": {
+        "enabled": true,
+        "description": "Knowledge integration and memory consolidation",
+        "consolidation_strategies": ["elaboration", "organization", "connection"],
+        "retention_optimization": true
+      }
+    }
+  },
+  
+  "context_engineering": {
+    "kv_cache_enabled": true,
+    "static_prompt_caching": true,
+    "max_context_tokens": 8000,
+    "enable_context_compression": true,
+    "compression_ratio": 0.7,
+    "external_memory_threshold": 2000,
+    "context_diversity": {
+      "enable_template_variation": true,
+      "response_template_count": 3,
+      "avoid_pattern_repetition": true
+    }
+  },
+  
+  "bidirectional_links": {
+    "max_links_per_note": 100,
+    "link_analysis_depth": 3,
+    "enable_link_caching": true,
+    "cache_ttl_seconds": 3600,
+    "density_calculation": {
+      "algorithm": "weighted_degree",
+      "normalization_factor": 10.0,
+      "include_incoming_weight": 0.6,
+      "include_outgoing_weight": 0.4
+    },
+    "context_selection": {
+      "full_text_threshold": 0.8,
+      "summary_threshold": 0.5,
+      "title_only_threshold": 0.2,
+      "max_full_text_notes": 3,
+      "max_summary_notes": 5,
+      "max_title_notes": 10
+    }
+  },
+  
+  "knowledge_processing": {
+    "markdown_extensions": [
+      "markdown.extensions.extra",
+      "markdown.extensions.codehilite",
+      "markdown.extensions.toc",
+      "pymdownx.arithmatex",
+      "pymdownx.betterem",
+      "pymdownx.caret",
+      "pymdownx.mark",
+      "pymdownx.tilde"
+    ],
+    "note_processing": {
+      "auto_generate_summaries": true,
+      "summary_max_length": 200,
+      "extract_key_concepts": true,
+      "analyze_cognitive_complexity": true
+    },
+    "obsidian_compatibility": {
+      "preserve_yaml_frontmatter": true,
+      "support_wikilinks": true,
+      "support_embedded_files": true,
+      "support_tags": true,
+      "support_aliases": true
+    }
+  },
+  
+  "performance": {
+    "file_processing": {
+      "max_file_size_mb": 10,
+      "enable_async_io": true,
+      "io_timeout_seconds": 10,
+      "max_concurrent_files": 5
+    },
+    "caching": {
+      "enable_memory_cache": true,
+      "memory_cache_size_mb": 100,
+      "enable_disk_cache": true,
+      "disk_cache_path": "./cache",
+      "cache_cleanup_interval_hours": 24
+    },
+    "rate_limiting": {
+      "enable_rate_limiting": false,
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    }
+  },
+  
+  "monitoring": {
+    "enable_metrics": false,
+    "metrics_endpoint": "/metrics",
+    "enable_health_check": true,
+    "health_check_endpoint": "/health",
+    "log_requests": true,
+    "log_responses": false,
+    "enable_tracing": false
+  },
+  
+  "security": {
+    "enable_cors": true,
+    "max_request_size_mb": 50,
+    "enable_input_validation": true,
+    "sanitize_file_paths": true,
+    "allowed_file_extensions": [".md", ".txt", ".json"],
+    "blocked_file_patterns": ["*.exe", "*.bat", "*.sh"]
+  },
+  
+  "development": {
+    "enable_debug_routes": false,
+    "enable_test_data": false,
+    "mock_llm_responses": false,
+    "enable_hot_reload": true,
+    "debug_tool_calls": false,
+    "log_context_details": false
+  }
+}

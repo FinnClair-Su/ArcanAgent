@@ -3,76 +3,113 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "arcanagent"
+name = "arcan-agent"
 version = "0.1.0"
-description = "A large-scale Agent project with MCP protocol and GRAG knowledge graph"
+description = "ArcanAgent - Personal Knowledge Management & Learning System based on Bidirectional Linking"
+authors = [
+    {name = "ArcanAgent Team", email = "contact@arcanagent.com"}
+]
 readme = "README.md"
 license = {text = "MIT"}
-authors = [
-    {name = "ArcanAgent Team", email = "team@arcanagent.com"}
-]
+requires-python = ">=3.11"
+keywords = ["ai", "learning", "knowledge-management", "obsidian", "bidirectional-links"]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-requires-python = ">=3.11"
+
 dependencies = [
+    # Core Framework
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
-    "httpx>=0.25.0",
-    "websockets>=12.0",
-    "openai>=1.6.0",
-    "anthropic>=0.8.0",
-    "sentence-transformers>=2.2.0",
-    "faiss-cpu>=1.7.0",
-    "numpy>=1.24.0",
+    
+    # Async & File I/O
+    "aiofiles>=23.2.1",
+    "asyncio>=3.4.3",
+    
+    # LLM Integration
+    "openai>=1.3.0",
+    "anthropic>=0.7.0",
+    
+    # Text Processing
+    "markdown>=3.5.1",
+    "python-markdown-math>=0.8",
+    "pymdown-extensions>=10.4",
+    
+    # Data Processing
     "pandas>=2.1.0",
-    "scikit-learn>=1.3.0",
-    "networkx>=3.2.0",
-    "matplotlib>=3.8.0",
-    "seaborn>=0.13.0",
-    "plotly>=5.17.0",
-    "jupyter>=1.0.0",
+    "numpy>=1.24.0",
+    
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "pathlib>=1.0.1",
+    "typing-extensions>=4.8.0",
+    
+    # Logging & Monitoring
+    "structlog>=23.2.0",
+    "rich>=13.7.0",
+    
+    # Testing (dev dependency, but included for convenience)
     "pytest>=7.4.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
-    "black>=23.11.0",
-    "isort>=5.12.0",
-    "flake8>=6.1.0",
-    "mypy>=1.7.0",
-    "pre-commit>=3.5.0",
+    "httpx>=0.25.0",  # for testing FastAPI
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.1.0",
+    # Development Tools
     "black>=23.11.0",
     "isort>=5.12.0",
     "flake8>=6.1.0",
     "mypy>=1.7.0",
-    "pre-commit>=3.5.0",
+    
+    # Testing
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "factory-boy>=3.3.0",
+    
+    # Documentation
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "mkdocs-mermaid2-plugin>=1.1.0",
+]
+
+production = [
+    # Production Server
+    "gunicorn>=21.2.0",
+    
+    # Monitoring
+    "prometheus-client>=0.19.0",
+    "sentry-sdk[fastapi]>=1.38.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/arcanagent/arcanagent"
 Repository = "https://github.com/arcanagent/arcanagent"
-Documentation = "https://arcanagent.readthedocs.io"
-Issues = "https://github.com/arcanagent/arcanagent/issues"
+Documentation = "https://docs.arcanagent.com"
+"Bug Tracker" = "https://github.com/arcanagent/arcanagent/issues"
+
+[project.scripts]
+arcanagent = "backend.main_server:main"
 
 [tool.setuptools.packages.find]
-where = ["backend"]
-include = ["*"]
+where = ["."]
+include = ["backend*"]
+exclude = ["tests*", "frontend*"]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
@@ -86,14 +123,18 @@ extend-exclude = '''
   | \.venv
   | build
   | dist
+  | frontend
 )/
 '''
 
 [tool.isort]
 profile = "black"
+line_length = 100
 multi_line_output = 3
-line_length = 88
-known_first_party = ["backend"]
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
 
 [tool.mypy]
 python_version = "3.11"
@@ -109,11 +150,47 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "openai.*",
+    "anthropic.*",
+    "markdown.*",
+    "pymdown_extensions.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["backend/tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --cov=backend --cov-report=term-missing --cov-report=html"
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=backend --cov-report=term-missing --cov-report=html"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "performance: marks tests as performance tests",
+]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = [
+    "tests/*",
+    "backend/config.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
