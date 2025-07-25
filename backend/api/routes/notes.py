@@ -5,13 +5,42 @@ Provides endpoints for managing markdown notes in the knowledge base.
 Maintains full Obsidian compatibility while providing programmatic access.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import logging
 
+from backend.core import BidirectionalLinkEngine
+from backend.knowledge import NoteManager
+
 router = APIRouter()
 logger = logging.getLogger("ArcanAgent.API.Notes")
+
+
+# Dependency injection - these will be properly initialized in main_server.py
+_link_engine: Optional[BidirectionalLinkEngine] = None
+_note_manager: Optional[NoteManager] = None
+
+
+def get_link_engine() -> BidirectionalLinkEngine:
+    """Get the bidirectional link engine instance."""
+    if _link_engine is None:
+        raise HTTPException(status_code=500, detail="Link engine not initialized")
+    return _link_engine
+
+
+def get_note_manager() -> NoteManager:
+    """Get the note manager instance.""" 
+    if _note_manager is None:
+        raise HTTPException(status_code=500, detail="Note manager not initialized")
+    return _note_manager
+
+
+def initialize_services(link_engine: BidirectionalLinkEngine, note_manager: NoteManager):
+    """Initialize the service dependencies."""
+    global _link_engine, _note_manager
+    _link_engine = link_engine
+    _note_manager = note_manager
 
 
 # Request/Response Models
@@ -56,7 +85,8 @@ async def list_notes(
     limit: int = Query(50, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     tags: Optional[str] = Query(None, description="Comma-separated tags to filter by"),
-    search: Optional[str] = Query(None, description="Search query for note content")
+    search: Optional[str] = Query(None, description="Search query for note content"),
+    note_manager: NoteManager = Depends(get_note_manager)
 ) -> Dict[str, Any]:
     """
     List notes in the knowledge base with optional filtering.
@@ -72,20 +102,32 @@ async def list_notes(
     """
     logger.info(f"Listing notes: limit={limit}, offset={offset}, tags={tags}, search={search}")
     
-    # TODO: Implement actual note listing with NoteManager
-    
-    # Placeholder response
-    return {
-        "notes": [],
-        "total": 0,
-        "limit": limit,
-        "offset": offset,
-        "has_more": False
-    }
+    try:
+        # Parse tags filter
+        tags_filter = None
+        if tags:
+            tags_filter = [tag.strip() for tag in tags.split(",")]
+        
+        # Get notes using NoteManager
+        result = note_manager.list_notes(
+            limit=limit,
+            offset=offset,
+            tags_filter=tags_filter,
+            search_query=search
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error listing notes: {e}")
+        raise HTTPException(status_code=500, detail=f"Error listing notes: {str(e)}")
 
 
 @router.get("/{note_id}")
-async def get_note(note_id: str) -> Note:
+async def get_note(
+    note_id: str,
+    note_manager: NoteManager = Depends(get_note_manager)
+) -> Note:
     """
     Get a specific note by ID.
     
@@ -97,14 +139,33 @@ async def get_note(note_id: str) -> Note:
     """
     logger.info(f"Getting note: {note_id}")
     
-    # TODO: Implement actual note retrieval
-    
-    # Placeholder response
-    raise HTTPException(status_code=404, detail="Note not found")
+    try:
+        note_data = note_manager.get_note(note_id)
+        
+        if not note_data:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        # Convert to response model
+        return Note(
+            id=note_data['id'],
+            metadata=NoteMetadata(**note_data['metadata']),
+            content=note_data['content'],
+            outgoing_links=note_data['outgoing_links'],
+            incoming_links=note_data['incoming_links']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting note {note_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving note: {str(e)}")
 
 
 @router.post("/")
-async def create_note(request: CreateNoteRequest) -> Dict[str, str]:
+async def create_note(
+    request: CreateNoteRequest,
+    note_manager: NoteManager = Depends(get_note_manager)
+) -> Dict[str, str]:
     """
     Create a new note in the knowledge base.
     
@@ -116,14 +177,23 @@ async def create_note(request: CreateNoteRequest) -> Dict[str, str]:
     """
     logger.info(f"Creating note: {request.title}")
     
-    # TODO: Implement actual note creation with NoteManager
-    
-    # Placeholder response
-    return {
-        "note_id": "temp_note_123",
-        "status": "created",
-        "message": "Note created successfully"
-    }
+    try:
+        note_id = note_manager.create_note(
+            title=request.title,
+            content=request.content,
+            tags=request.tags,
+            complexity=request.complexity
+        )
+        
+        return {
+            "note_id": note_id,
+            "status": "created",
+            "message": "Note created successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating note: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating note: {str(e)}")
 
 
 @router.put("/{note_id}")

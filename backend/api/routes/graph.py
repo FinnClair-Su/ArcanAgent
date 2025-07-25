@@ -5,13 +5,32 @@ Provides endpoints for analyzing and visualizing the bidirectional link network.
 Supports graph traversal, path finding, and network analysis.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import logging
 
+from backend.core import BidirectionalLinkEngine
+
 router = APIRouter()
 logger = logging.getLogger("ArcanAgent.API.Graph")
+
+
+# Dependency injection
+_link_engine: Optional[BidirectionalLinkEngine] = None
+
+
+def get_link_engine() -> BidirectionalLinkEngine:
+    """Get the bidirectional link engine instance."""
+    if _link_engine is None:
+        raise HTTPException(status_code=500, detail="Link engine not initialized")
+    return _link_engine
+
+
+def initialize_graph_services(link_engine: BidirectionalLinkEngine):
+    """Initialize the graph service dependencies."""
+    global _link_engine
+    _link_engine = link_engine
 
 
 # Response Models
@@ -51,7 +70,8 @@ class LearningPath(BaseModel):
 @router.get("/overview")
 async def get_graph_overview(
     include_orphans: bool = Query(True, description="Include notes with no links"),
-    max_nodes: int = Query(500, ge=1, le=2000, description="Maximum nodes to return")
+    max_nodes: int = Query(500, ge=1, le=2000, description="Maximum nodes to return"),
+    link_engine: BidirectionalLinkEngine = Depends(get_link_engine)
 ) -> GraphOverview:
     """
     Get a complete overview of the knowledge graph.
@@ -65,21 +85,61 @@ async def get_graph_overview(
     """
     logger.info(f"Getting graph overview: include_orphans={include_orphans}, max_nodes={max_nodes}")
     
-    # TODO: Implement actual graph analysis with BidirectionalLinkEngine
-    
-    # Placeholder response
-    return GraphOverview(
-        nodes=[],
-        edges=[],
-        statistics={
-            "total_nodes": 0,
-            "total_edges": 0,
-            "avg_links_per_note": 0.0,
-            "most_connected_note": None,
-            "orphaned_notes": 0,
-            "graph_density": 0.0
-        }
-    )
+    try:
+        # Get graph statistics
+        stats = link_engine.get_graph_statistics()
+        
+        nodes = []
+        edges = []
+        node_count = 0
+        
+        # Build nodes and edges
+        for note_id in link_engine.note_metadata.keys():
+            if node_count >= max_nodes:
+                break
+                
+            analysis = link_engine.analyze_note(note_id)
+            if not analysis:
+                continue
+            
+            # Skip orphaned notes if requested
+            if not include_orphans and not analysis.outgoing_links and not analysis.incoming_links:
+                continue
+            
+            # Create node
+            metadata = link_engine.note_metadata[note_id]
+            node = GraphNode(
+                id=note_id,
+                title=metadata.get('title', note_id),
+                tags=metadata.get('tags', []),
+                link_density=round(analysis.link_density, 3),
+                mastery_level=metadata.get('mastery_level'),
+                complexity=metadata.get('complexity')
+            )
+            nodes.append(node)
+            
+            # Create edges for outgoing links
+            for target in analysis.outgoing_links:
+                if target in link_engine.note_metadata:  # Only include valid targets
+                    edge = GraphEdge(
+                        source=note_id,
+                        target=target,
+                        weight=1.0,
+                        relationship_type="links_to"
+                    )
+                    edges.append(edge)
+            
+            node_count += 1
+        
+        return GraphOverview(
+            nodes=nodes,
+            edges=edges,
+            statistics=stats
+        )
+        
+    except Exception as e:
+        logger.error(f"Error getting graph overview: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting graph overview: {str(e)}")
 
 
 @router.get("/path/{from_note}/{to_note}")
@@ -87,7 +147,8 @@ async def find_learning_path(
     from_note: str,
     to_note: str,
     algorithm: str = Query("shortest", description="Path finding algorithm"),
-    max_depth: int = Query(10, ge=1, le=20, description="Maximum path depth")
+    max_depth: int = Query(10, ge=1, le=20, description="Maximum path depth"),
+    link_engine: BidirectionalLinkEngine = Depends(get_link_engine)
 ) -> LearningPath:
     """
     Find the optimal learning path between two concepts.
@@ -103,18 +164,40 @@ async def find_learning_path(
     """
     logger.info(f"Finding path: {from_note} -> {to_note} using {algorithm}")
     
-    # TODO: Implement actual path finding algorithms
-    # - shortest: Simple shortest path
-    # - cognitive_distance: Weight by cognitive complexity
-    # - zpd_optimized: Optimize for Zone of Proximal Development
-    
-    # Placeholder response
-    return LearningPath(
-        path=[from_note, to_note],
-        total_distance=1.0,
-        estimated_learning_time=30,
-        difficulty_progression=[1, 2]
-    )
+    try:
+        # For now, implement shortest path algorithm
+        path_info = link_engine.find_shortest_path(from_note, to_note, max_depth)
+        
+        if not path_info:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"No path found between {from_note} and {to_note}"
+            )
+        
+        # Calculate difficulty progression based on note complexity
+        difficulty_progression = []
+        for note_id in path_info.path:
+            metadata = link_engine.note_metadata.get(note_id, {})
+            complexity = metadata.get('complexity', 1)
+            difficulty_progression.append(complexity)
+        
+        # Estimate learning time (rough calculation)
+        base_time_per_step = 15  # minutes
+        complexity_factor = sum(difficulty_progression) / len(difficulty_progression)
+        estimated_time = int(len(path_info.path) * base_time_per_step * complexity_factor)
+        
+        return LearningPath(
+            path=path_info.path,
+            total_distance=path_info.cognitive_weight,
+            estimated_learning_time=estimated_time,
+            difficulty_progression=difficulty_progression
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error finding path: {e}")
+        raise HTTPException(status_code=500, detail=f"Error finding path: {str(e)}")
 
 
 @router.get("/neighbors/{note_id}")

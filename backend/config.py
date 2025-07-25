@@ -43,35 +43,81 @@ class APIConfig(BaseModel):
     request_timeout: int = Field(default=30, ge=1, le=300, description="Request timeout in seconds")
 
 
-class OpenAIConfig(BaseModel):
+class ProviderConfig(BaseModel):
+    """Base configuration for LLM providers."""
+    api_key: str = Field(default="", description="API key for the provider")
+    base_url: Optional[str] = Field(default=None, description="Base URL for the API")
+    model: str = Field(default="", description="Model name")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
+    max_tokens: int = Field(default=4000, ge=1, le=32768, description="Maximum tokens")
+    timeout: int = Field(default=60, ge=1, le=300, description="Request timeout")
+    max_retries: int = Field(default=3, ge=1, le=10, description="Maximum retry attempts")
+
+
+class OpenAIConfig(ProviderConfig):
     """OpenAI LLM configuration."""
     api_key: str = Field(default="sk-your-openai-api-key-here", description="OpenAI API key")
-    base_url: str = Field(default="https://api.openai.com/v1", description="OpenAI API base URL")
+    base_url: Optional[str] = Field(default="https://api.openai.com/v1", description="OpenAI API base URL")
     model: str = Field(default="gpt-4-turbo-preview", description="OpenAI model name")
-    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
-    max_tokens: int = Field(default=2000, ge=1, le=8192, description="Maximum tokens")
-    timeout: int = Field(default=30, ge=1, le=300, description="Request timeout")
 
 
-class AnthropicConfig(BaseModel):
+class AnthropicConfig(ProviderConfig):
     """Anthropic Claude configuration."""
     api_key: str = Field(default="sk-ant-your-anthropic-api-key-here", description="Anthropic API key")
+    base_url: Optional[str] = Field(default="https://api.anthropic.com", description="Anthropic API base URL")
     model: str = Field(default="claude-3-sonnet-20240229", description="Claude model name")
-    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
-    max_tokens: int = Field(default=2000, ge=1, le=8192, description="Maximum tokens")
-    timeout: int = Field(default=30, ge=1, le=300, description="Request timeout")
+
+
+class GeminiConfig(ProviderConfig):
+    """Google Gemini configuration."""
+    api_key: str = Field(default="your-gemini-api-key-here", description="Gemini API key")
+    base_url: Optional[str] = Field(default="https://generativelanguage.googleapis.com/v1beta", description="Gemini API base URL")
+    model: str = Field(default="gemini-1.5-pro", description="Gemini model name")
+
+
+class OpenRouterConfig(ProviderConfig):
+    """OpenRouter configuration."""
+    api_key: str = Field(default="sk-or-your-openrouter-api-key-here", description="OpenRouter API key")
+    base_url: Optional[str] = Field(default="https://openrouter.ai/api/v1", description="OpenRouter API base URL")
+    model: str = Field(default="anthropic/claude-3-sonnet", description="OpenRouter model name")
+
+
+class DeepseekConfig(ProviderConfig):
+    """Deepseek configuration."""
+    api_key: str = Field(default="sk-your-deepseek-api-key-here", description="Deepseek API key")
+    base_url: Optional[str] = Field(default="https://api.deepseek.com/v1", description="Deepseek API base URL")
+    model: str = Field(default="deepseek-chat", description="Deepseek model name")
+
+
+class AlibabaConfig(ProviderConfig):
+    """Alibaba Cloud DashScope configuration."""
+    api_key: str = Field(default="sk-your-alibaba-api-key-here", description="Alibaba DashScope API key")
+    base_url: Optional[str] = Field(default="https://dashscope.aliyuncs.com/compatible-mode/v1", description="Alibaba API base URL")
+    model: str = Field(default="qwen-turbo", description="Alibaba model name")
 
 
 class LLMConfig(BaseModel):
     """Large Language Model configuration."""
     default_provider: str = Field(default="openai", description="Default LLM provider")
+    
+    # Provider configurations
     openai: OpenAIConfig = Field(default_factory=OpenAIConfig)
     anthropic: AnthropicConfig = Field(default_factory=AnthropicConfig)
+    gemini: GeminiConfig = Field(default_factory=GeminiConfig)
+    openrouter: OpenRouterConfig = Field(default_factory=OpenRouterConfig)
+    deepseek: DeepseekConfig = Field(default_factory=DeepseekConfig)
+    alibaba: AlibabaConfig = Field(default_factory=AlibabaConfig)
+    
+    # Global LLM settings
+    enable_streaming: bool = Field(default=True, description="Enable streaming responses")
+    enable_retry: bool = Field(default=True, description="Enable retry on failures")
+    default_temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Default temperature")
+    default_max_tokens: int = Field(default=4000, ge=1, le=32768, description="Default max tokens")
     
     @field_validator('default_provider')
     @classmethod
     def validate_provider(cls, v):
-        valid_providers = ['openai', 'anthropic']
+        valid_providers = ['openai', 'anthropic', 'gemini', 'openrouter', 'deepseek', 'alibaba']
         if v not in valid_providers:
             raise ValueError(f'LLM provider must be one of: {valid_providers}')
         return v

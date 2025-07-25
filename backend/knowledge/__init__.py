@@ -8,14 +8,15 @@ This package contains the knowledge management components:
 - ZPD Analyzer: Analyze Zone of Proximal Development
 """
 
-from .note_manager import NoteManager
-from .markdown_parser import MarkdownParser
-from .link_analyzer import LinkAnalyzer
-from .zpd_analyzer import ZPDAnalyzer
+from .note_manager import NoteManager, NoteInfo
+# from .markdown_parser import MarkdownParser
+# from .link_analyzer import LinkAnalyzer
+# from .zpd_analyzer import ZPDAnalyzer
 
 __all__ = [
     "NoteManager",
-    "MarkdownParser", 
-    "LinkAnalyzer",
-    "ZPDAnalyzer"
+    "NoteInfo",
+    # "MarkdownParser", 
+    # "LinkAnalyzer",
+    # "ZPDAnalyzer"
 ]
