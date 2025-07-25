@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global CSS Variables */
+:root {
+  --toastify-color-light: #fff;
+  --toastify-color-dark: #121212;
+  --toastify-color-info: #3b82f6;
+  --toastify-color-success: #22c55e;
+  --toastify-color-warning: #f59e0b;
+  --toastify-color-error: #ef4444;
+}
+
+/* Base styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-primary;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Arcana Card Styles */
+  .arcana-card {
+    @apply relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-arcana dark:border-gray-800 dark:bg-gray-900;
+  }
+  
+  .arcana-card::before {
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
+    content: '';
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  }
+  
+  .arcana-card:hover::before {
+    @apply opacity-100;
+  }
+  
+  /* Knowledge Graph Styles */
+  .knowledge-graph {
+    @apply relative h-full w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-graph dark:border-gray-800 dark:bg-gray-900;
+  }
+  
+  .graph-svg {
+    @apply h-full w-full;
+  }
+  
+  .graph-node {
+    @apply cursor-pointer transition-all duration-200;
+  }
+  
+  .graph-node:hover {
+    @apply drop-shadow-lg;
+  }
+  
+  .graph-link {
+    @apply transition-all duration-200;
+  }
+  
+  /* Learning Progress Styles */
+  .learning-progress {
+    @apply space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900;
+  }
+  
+  .stage-item {
+    @apply flex items-center space-x-4 rounded-lg border border-gray-100 p-4 transition-all duration-300 dark:border-gray-800;
+  }
+  
+  .stage-item.active {
+    @apply border-primary-500 bg-primary-50 dark:bg-primary-950;
+  }
+  
+  .stage-item.completed {
+    @apply border-green-500 bg-green-50 dark:bg-green-950;
+  }
+  
+  /* Animations */
+  .animate-pulse-arcana {
+    animation: pulse-arcana 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-arcana {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .8;
+    }
+  }
+}
+
+/* Utility styles */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Custom focus styles */
+  .focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-background;
+  }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
