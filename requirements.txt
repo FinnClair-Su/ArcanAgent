@@ -15,6 +15,7 @@ anthropic>=0.8.1
 # Data Processing
 markdown>=3.5.1
 pymdown-extensions>=10.7
+python-frontmatter>=1.0.0
 
 # Utilities
 python-multipart>=0.0.6
@@ -24,6 +25,7 @@ passlib[bcrypt]>=1.7.4
 # Optional Performance
 redis>=5.0.1
 celery>=5.3.4
+aiohttp>=3.9.0
 
 # Development and Testing
 pytest>=7.4.3

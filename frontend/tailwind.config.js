@@ -8,6 +8,8 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         // Primary colors - 神秘蓝
         primary: {
           50: '#eff6ff',

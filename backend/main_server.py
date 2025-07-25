@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
         from .knowledge.note_manager import NoteManager
         from .core.bidirectional_links import BidirectionalLinkEngine
         from .core.context_manager import ContextManager
-        from .core.tool_call_engine import ToolCallEngine, SearchKnowledgeTool, AnalyzeLinksTool
+        from .core.tool_call_engine import ToolCallEngine
         from .core.llm_initializer import initialize_llm_clients
         from .api.routes import notes, graph
         
@@ -53,13 +53,7 @@ async def lifespan(app: FastAPI):
         context_manager = ContextManager(link_engine, max_context_tokens=config.llm.default_max_tokens)
         
         # Initialize tool call engine with basic tools
-        tool_engine = ToolCallEngine(context_manager, max_call_depth=config.agents.max_tool_call_loops)
-        
-        # Register built-in tools
-        search_tool = SearchKnowledgeTool(link_engine)
-        analyze_tool = AnalyzeLinksTool(link_engine)
-        tool_engine.register_tool(search_tool)
-        tool_engine.register_tool(analyze_tool)
+        tool_engine = ToolCallEngine(context_manager, max_recursion=config.agents.max_tool_call_loops)
         
         # Initialize LLM clients
         llm_manager = initialize_llm_clients(config)

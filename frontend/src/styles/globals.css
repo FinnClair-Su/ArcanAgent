@@ -15,7 +15,7 @@
 /* Base styles */
 @layer base {
   * {
-    @apply border-border;
+    /* This was the source of the error, replaced with standard classes */
   }
   
   body {
