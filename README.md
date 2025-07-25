@@ -4,283 +4,101 @@
 
 ArcanAgent is a revolutionary personal knowledge management and learning system built on the principle that bidirectional linking can transform how we organize, understand, and learn from our knowledge. Inspired by the seminal paper "Attention is All You Need," we propose that **bidirectional links are all you need** for effective knowledge management.
 
+This project is currently in an active development phase. The core backend logic and learning pipeline are complete and functional. The frontend is connected for the primary learning workflow, with some features stubbed out for future development.
+
 ## 🌟 Core Philosophy
 
 Just as attention mechanisms revolutionized neural machine translation by eliminating the need for recurrence and convolution, bidirectional links can revolutionize knowledge management by eliminating the need for complex graph databases and vector stores.
 
-### Why Bidirectional Links? 
+- **Simplicity**: Pure markdown files with `[[wiki-style]]` links.
+- **Transparency**: Human-readable and editable knowledge base.
+- **Portability**: Seamless integration with Obsidian and similar tools.
+- **Efficiency**: File system operations replace database queries.
 
-**Traditional knowledge graphs require:**
-- Complex Neo4j queries and maintenance
-- Vector database synchronization  
-- Heavyweight indexing and embedding pipelines
-- Specialized query languages and APIs
+## ⚙️ How It Works: The Arcana-Powered Learning Workflow
 
-**Bidirectional links provide:**
-- **Simplicity**: Pure markdown files with `[[wiki-style]]` links
-- **Transparency**: Human-readable and editable knowledge base
-- **Portability**: Seamless integration with Obsidian and similar tools
-- **Efficiency**: File system operations replace database queries
+ArcanAgent uses a pipeline of five specialized AI agents to guide you through a complete learning cycle. The entire process is orchestrated by a sophisticated backend and accessible through a user-friendly frontend.
 
-## 🎯 Features
+1.  **Initiate Learning (Frontend)**: Your journey begins in the **Learning Hub**. You enter a topic or question you want to learn about.
+2.  **Orchestration (Backend)**: The system receives your query and triggers the `ArcanaAgentOrchestrator`. This orchestrator manages the five-agent pipeline, passing the context from one agent to the next.
+3.  **The High Priestess (🔮 Knowledge Assessment)**: First, The High Priestess analyzes your existing `knowledge_base` (your markdown notes) to assess your current understanding of the topic.
+4.  **The Hermit (🏮 Path Planning)**: Based on the assessment, The Hermit identifies your "Zone of Proximal Development" (ZPD) and charts an optimal, step-by-step learning path for you.
+5.  **The Magician (✨ Content Generation)**: The Magician takes the learning path and magically generates personalized educational content, automatically weaving in `[[bidirectional links]]` to connect with your existing knowledge.
+6.  **Justice (⚖️ Understanding Evaluation)**: After you've reviewed the content, Justice assesses your comprehension by generating questions and evaluating how well you can form connections.
+7.  **The Empress (🌸 Memory Consolidation)**: Finally, The Empress helps consolidate what you've learned, integrating the new knowledge into your permanent knowledge base by updating and creating notes and links.
+8.  **Real-time Feedback (Frontend & Backend)**: Throughout this process, the backend sends real-time updates via **WebSockets**, which are displayed in the Learning Hub UI, so you can see the magic happen.
 
-### 🧠 Learning Science Integration
-- **Zone of Proximal Development (ZPD)**: Learn at the optimal pace
-- **Cognitive Load Theory**: Optimize mental bandwidth automatically
-- **Spaced Repetition**: Reinforce learning through intelligent scheduling
-- **Metacognitive Support**: Guide how to learn, not just what to learn
+## 🚀 Getting Started: Deployment & Usage
 
-### 🔗 Advanced Bidirectional Linking
-- **Automatic Link Discovery**: AI-powered link suggestion and creation
-- **Context-Aware Granularity**: Content adapts based on link density
-- **Shortest Path Learning**: Find optimal paths between concepts
-- **Link Density Analysis**: Mathematical elegance in knowledge organization
-
-### 🔮 The Five Arcana Agents
-Your learning journey is guided by five specialized AI agents, each named after Tarot arcana:
-
-1. **The High Priestess** 🔮 - Knowledge state assessment and cognitive analysis
-2. **The Hermit** 🏮 - Learning path planning and ZPD identification  
-3. **The Magician** ✨ - Personalized content generation and real-time linking
-4. **Justice** ⚖️ - Understanding evaluation and learning effectiveness
-5. **The Empress** 🌸 - Knowledge integration and memory consolidation
-
-## 🚀 Quick Start
+The easiest way to get ArcanAgent running is with Docker.
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+ (for frontend development)
+- Docker and Docker Compose
 - Git
+- An LLM API key (e.g., from OpenAI, Anthropic)
 
-### Installation
+### 1. Configuration
+First, clone the repository and set up your configuration.
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/arcanagent/arcanagent.git
-   cd ArcanAgent
-   ```
-
-2. **Set up the backend**
-   ```bash
-   # Create virtual environment
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\\Scripts\\activate
-   
-   # Install dependencies
-   pip install -e .
-   ```
-
-3. **Configure your API keys**
-   ```bash
-   cp .env.example .env
-   cp config.json.example config.json
-   
-   # Edit .env and config.json with your LLM API keys
-   # OpenAI or Anthropic API key required
-   ```
-
-4. **Start the system**
-   ```bash
-   python main.py
-   ```
-
-5. **Access the application**
-   - API Documentation: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health
-   - Frontend (coming soon): http://localhost:3000
-
-### Your First Learning Session
-
-1. Create a note in your `knowledge_base/notes/` directory:
-   ```markdown
-   ---
-   title: "My Learning Goal"
-   tags: [learning, goals]
-   ---
-   
-   # My Learning Goal
-   
-   I want to learn about [[Artificial Intelligence]] and its applications in [[Education]].
-   ```
-
-2. Start a learning session via the API:
-   ```bash
-   curl -X POST "http://localhost:8000/api/v1/learning/assess-knowledge" \\
-        -H "Content-Type: application/json" \\
-        -d '{"user_query": "I want to learn about artificial intelligence"}'
-   ```
-
-3. Follow the guided learning flow through all five stages!
-
-## 📁 Project Structure
-
-```
-ArcanAgent/
-├── backend/                 # Python backend
-│   ├── core/               # Core engines (links, context, tools)
-│   ├── agents/             # The five Arcana agents
-│   ├── knowledge/          # Knowledge management system
-│   ├── api/                # FastAPI routes and middleware
-│   └── utils/              # Utility functions
-├── frontend/               # React frontend (coming soon)
-├── knowledge_base/         # Your Obsidian-compatible notes
-├── tests/                  # Comprehensive test suite
-├── docs/                   # Documentation
-└── deployment/             # Docker and deployment configs
-```
-
-## 🔧 Configuration
-
-ArcanAgent uses a flexible configuration system supporting both JSON files and environment variables:
-
-### Environment Variables (.env)
 ```bash
-# LLM Provider
-OPENAI_API_KEY=your-openai-key
-# OR
-ANTHROPIC_API_KEY=your-anthropic-key
+git clone https://github.com/your-username/ArcanAgent.git
+cd ArcanAgent
 
-# Server Settings
-API_HOST=127.0.0.1
-API_PORT=8000
-
-# Knowledge Base
-KNOWLEDGE_BASE_PATH=./knowledge_base
+# Create a .env file from the example
+cp .env.example .env
 ```
 
-### JSON Configuration (config.json)
-```json
-{
-  "llm": {
-    "default_provider": "openai",
-    "openai": {
-      "model": "gpt-4-turbo-preview",
-      "temperature": 0.7
-    }
-  },
-  "learning": {
-    "max_sessions": 10,
-    "enable_adaptive_difficulty": true
-  }
-}
+Now, open the `.env` file and add your LLM API key. For example:
+```env
+# .env
+OPENAI_API_KEY="sk-..."
 ```
 
-## 🧪 Development
+The system defaults to using OpenAI. You can change the default provider and other settings in `config.json` (by copying from `config.json.example`).
 
-### Running Tests
+### 2. Run with Docker Compose
+With Docker running, execute the following command from the project root:
+
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=backend
-
-# Run specific test categories
-pytest -m unit          # Unit tests only
-pytest -m integration   # Integration tests only
-pytest -m performance   # Performance tests only
+docker-compose up --build
 ```
 
-### Code Quality
-```bash
-# Format code
-black backend/
-isort backend/
+This will build the images for the frontend and backend and start both services.
 
-# Type checking
-mypy backend/
+### 3. Usage
+-   **Access the Frontend**: Open your browser and navigate to `http://localhost:3000`.
+-   **Start Learning**: Go to the **Learning Hub** from the homepage.
+-   **Enter Your Query**: Type a topic you want to learn about (e.g., "Explain the basics of quantum physics").
+-   **Begin Session**: Click "Begin Learning Session" and watch as the Arcana agents guide you through the workflow.
 
-# Linting
-flake8 backend/
-```
+## 🛣️ Future Development
 
-## 🔬 The Science Behind ArcanAgent
+The core learning pipeline is complete, but there is still much to do. Our development efforts will now focus on the following areas:
 
-### Mathematical Foundation
-Our link density analysis follows elegant mathematical principles:
+-   **Full-Fledged Note Management**:
+    -   Implementing the `update` and `delete` functionalities for notes via the API.
+    -   Building out the "Notes Manager" UI on the frontend to be a fully interactive CRUD interface for the `knowledge_base`.
 
-```
-Granularity = f(incoming_links, outgoing_links)
-Context_Quality = Σ(shortest_paths) × neighborhood_expansion  
-Learning_Readiness = |prerequisites ∩ known_concepts| / |prerequisites|
-```
+-   **Interactive Knowledge Graph**:
+    -   Implementing the backend logic for advanced graph analytics (e.g., clustering, centrality).
+    -   Bringing the "Knowledge Graph" page to life using a library like D3.js or Vis.js to create a dynamic, explorable visualization of your notes and their connections.
 
-### Context Engineering Principles
-ArcanAgent strictly follows six core context engineering principles for optimal performance and cost:
+-   **Refining Core Engines**:
+    -   Improving the `ContextManager`'s "attention via recitation" mechanism to better maintain focus during long tasks.
+    -   Enhancing the `BidirectionalLinkEngine` with more sophisticated link suggestion algorithms.
 
-1. **KV-Cache Optimization** - Maximize cache hit rates
-2. **Tool Availability Management** - Static tool definitions with logits masking
-3. **File System as Context** - External memory through file references
-4. **Attention via Recitation** - Periodic plan injection
-5. **Error Information Retention** - Complete failure preservation
-6. **Context Diversity** - Avoid pattern repetition
+-   **Enhanced Testing**:
+    -   Expanding the test suite with more comprehensive end-to-end tests for the learning pipeline.
+    -   Adding frontend tests to ensure UI reliability.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](docs/contributing.md) for details.
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Install development dependencies: `pip install -e ".[dev]"`
-4. Make your changes and add tests
-5. Run the test suite: `pytest`
-6. Submit a pull request
-
-## 📚 Documentation
-
-- [Installation Guide](docs/installation.md)
-- [Configuration Reference](docs/configuration.md)
-- [API Documentation](docs/api_reference.md)
-- [Architecture Overview](docs/architecture/overview.md)
-- [Agent System Guide](docs/architecture/agents.md)
-- [Bidirectional Links Deep Dive](docs/architecture/bidirectional_links.md)
-
-## 🛣️ Roadmap
-
-### Phase 1: Core System (Current)
-- [x] Project structure and configuration
-- [x] Basic API endpoints  
-- [ ] Core bidirectional link engine
-- [ ] Five Arcana agents implementation
-- [ ] Tool call loop system
-
-### Phase 2: Learning Features
-- [ ] ZPD analysis and path planning
-- [ ] Adaptive content generation
-- [ ] Understanding assessment
-- [ ] Memory consolidation
-
-### Phase 3: Frontend & UX  
-- [ ] React frontend application
-- [ ] Interactive knowledge graph visualization
-- [ ] Real-time learning progress tracking
-- [ ] Mobile-responsive design
-
-### Phase 4: Advanced Features
-- [ ] FSRS spaced repetition integration
-- [ ] Multi-language support
-- [ ] Collaborative learning features
-- [ ] Advanced analytics and insights
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+We welcome contributions! Please see our (forthcoming) `CONTRIBUTING.md` for details.
 
 ## 🙏 Acknowledgments
 
 - Inspired by the "Attention is All You Need" paper by Vaswani et al.
-- Built on Zone of Proximal Development theory by Lev Vygotsky  
-- Cognitive Load Theory by John Sweller
-- The Obsidian community for pioneering bidirectional linking
-- NagaAgent project for architectural inspiration
-
-## 💬 Community & Support
-
-- **GitHub Issues**: [Report bugs and request features](https://github.com/arcanagent/arcanagent/issues)
-- **Discussions**: [Join the community discussion](https://github.com/arcanagent/arcanagent/discussions)
-- **Documentation**: [Read the full docs](https://docs.arcanagent.com)
-
----
-
-**Remember**: In the world of knowledge management, **Bidirectional Linking is All You Need** 🔗✨
+- Built on Zone of Proximal Development theory by Lev Vygotsky.
+- Cognitive Load Theory by John Sweller.
+- The Obsidian community for pioneering bidirectional linking.
+- The NagaAgent project for architectural inspiration.
